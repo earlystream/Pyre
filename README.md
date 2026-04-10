@@ -82,7 +82,8 @@ If a possible optimization risks vanilla accuracy or mod compatibility, the safe
 
 ## License
 
-Add your license here.
+This project is licensed under the **Mozilla Public License 2.0 (MPL-2.0)**.
+See the `LICENSE` file for details.
 
 ---
 Vanilla-faithful TNT and explosion lag optimization for Fabric 1.21.11.
