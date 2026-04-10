@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "pyre",
+  "version": "${version}",
+  "name": "Pyre",
+  "description": "Vanilla-faithful TNT and explosion lag optimization for Fabric 1.21.11.",
+  "authors": [
+    {
+      "name": "earlystream",
+      "contact": {
+        "homepage": "https://modrinth.com/user/earlystream"
+      }
+    }
+  ],
+  "contact": {
+    "sources": "https://github.com/earlystream/Pyre",
+    "issues": "https://github.com/earlystream/Pyre/issues"
+  },
+  "license": "MPL-2.0",
+  "icon": "assets/pyre/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "pyre.Pyre"
+    ]
+  },
+  "mixins": [
+    "pyre.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.6",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
