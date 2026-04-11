@@ -1,15 +1,21 @@
 # Pyre
 
-Pyre is a vanilla-faithful Fabric mod for **Minecraft 1.21.11** built to reduce lag during **TNT-heavy gameplay** and **large explosion chains** while preserving vanilla behavior.
+Pyre is a vanilla-faithful Fabric mod focused on reducing lag from TNT-heavy gameplay and large explosion chains without changing vanilla outcomes.
 
-Pyre uses a **split, side-aware architecture inside a single mod jar**:
+Pyre keeps a split, side-aware architecture inside a single mod:
 
-- a **server or integrated-server path** for real TNT and explosion optimization
-- a **client-side path** for local explosion particle and sound smoothing
+- a server or integrated-server path for real explosion workload optimization
+- a client-side path for local explosion sound and particle smoothing
+
+## Supported versions
+
+Pyre currently targets Fabric on exact Minecraft versions from `1.21` through `1.21.11`.
+
+This repository builds separate jars for each supported Minecraft version rather than pretending one universal jar safely covers every internal variation.
 
 ## What Pyre does
 
-Pyre is made to improve performance in explosion-heavy scenarios by optimizing how explosion-related work is processed, while keeping vanilla results the same.
+Pyre is built to reduce the cost of explosion-heavy scenarios while preserving vanilla behavior.
 
 Pyre is designed to preserve:
 
@@ -19,36 +25,27 @@ Pyre is designed to preserve:
 - entity damage and knockback
 - redstone behavior and technical gameplay expectations
 
-## Design goals
-
-Pyre follows one core principle:
+## Core principle
 
 > Optimize the workload, not the outcome.
 
-The mod is built around:
+That means Pyre does not replace vanilla explosion logic. It only reorganizes or reuses narrow support work when doing so is safe.
 
-- vanilla-faithful explosion behavior
-- conservative, safety-first optimization
-- strong compatibility with common Fabric optimization mods
-- side-safe behavior across singleplayer, multiplayer, and modpacks
-
-## How Pyre works
-
-Pyre includes both sides inside one Fabric mod.
+## How it works
 
 ### Server or integrated-server side
 
-This is the gameplay-safe optimization path.
+This is the real optimization path.
 
 It is responsible for:
 
-- explosion workload scheduling
-- conservative explosion query caching
-- cluster-aware support reuse
+- explosion lifecycle coordination
+- conservative same-tick query caching
+- cluster-aware overlap tracking
 - strict compatibility fallbacks
-- profiling and debug hooks
+- lightweight profiling and debug hooks
 
-This is the side that reduces the real cost of TNT and explosion simulation in:
+This is the side that can reduce the real CPU cost of TNT and explosion simulation in:
 
 - singleplayer
 - LAN host worlds
@@ -56,17 +53,16 @@ This is the side that reduces the real cost of TNT and explosion simulation in:
 
 ### Client side
 
-This side only smooths local explosion-related effects after the server-authoritative result already exists.
+This side is cosmetic and local only.
 
 It is responsible for:
 
-- client-side explosion effect management
-- particle budgeting during heavy explosion spam
+- particle budgeting during explosion spam
 - repeated explosion sound coalescing
-- local explosion clustering for effect smoothing
-- client lifecycle cleanup on world unload and disconnect
+- local packet clustering for effect smoothing
+- cleanup on world unload and disconnect
 
-This path does **not** change gameplay.
+This path does not change gameplay, server authority, or packet semantics.
 
 ## Behavior by environment
 
@@ -75,25 +71,25 @@ This path does **not** change gameplay.
 Both sides can run:
 
 - the integrated server handles the real TNT and explosion optimization
-- the client handles local explosion effect smoothing
+- the client smooths local explosion effects
 
 ### Multiplayer without Pyre on the server
 
 Only the client-side smoothing is active:
 
-- local particle and sound spam can be reduced
-- server TPS and explosion simulation remain unchanged
+- local sound and particle spam can be reduced
+- server TPS and remote explosion simulation are unchanged
 
 ### Multiplayer with Pyre on the server
 
-Both sides can contribute independently:
+Both sides can help independently:
 
 - the server optimizes TNT and explosion workload
 - the client smooths local explosion effects
 
 ## Compatibility
 
-Pyre is designed to work cleanly alongside common optimization mods, including:
+Pyre is designed to coexist with common optimization stacks, including:
 
 - Sodium
 - Lithium
@@ -106,53 +102,47 @@ Pyre is designed to work cleanly alongside common optimization mods, including:
 - EntityCulling
 - MoreCulling
 
-Pyre does **not** try to replace rendering, networking, or wider game systems. Its scope stays focused on TNT and explosion workload handling on the simulation side, plus local explosion effect smoothing on the client.
+Pyre stays deliberately narrow in scope. It does not try to replace rendering systems, networking behavior, or broad engine internals that other optimization mods already touch.
 
 ## What Pyre does not do
 
-Pyre does **not**:
+Pyre does not:
 
 - replace vanilla explosion logic
 - change TNT behavior or fuse timing
 - use fake or simplified blast physics
-- combine multiple explosions into a custom composite system
-- change explosion damage, knockback, or block results on the client
-- modify networking or packet behavior
+- combine multiple explosions into a custom composite explosion system
+- change client-side gameplay outcomes
+- modify packet behavior or networking semantics
 - replace Sodium-managed rendering paths
 - affect chunk meshing, lighting, or unrelated rendering systems
 - add unrelated general-purpose optimization features
 
-## Current status
+## Installation
 
-Pyre is currently centered on a compatibility-first foundation for **Minecraft 1.21.11**.
+1. Install Fabric Loader for your exact supported Minecraft version.
+2. Install Fabric API.
+3. Use the Pyre jar built for that exact Minecraft version.
+4. Place it in your `mods` folder.
 
-Current development includes:
+## Project status
 
-- server-side or integrated-server explosion workload optimization
-- conservative query caching
-- cluster-aware support reuse
-- client-side explosion particle and sound smoothing
+Pyre currently focuses on a compatibility-first foundation for Fabric `1.21` through `1.21.11`, with:
+
+- server-side explosion workload optimization
+- conservative nearby-entity query reuse
+- cluster-aware overlap tracking
+- client-side explosion effect smoothing
 - strict compatibility safeguards
 - profiling and debug hooks
 
-## Installation
-
-1. Install **Fabric Loader** for **Minecraft 1.21.11**
-2. Install **Fabric API** if the build requires it
-3. Place Pyre in your `mods` folder
-4. Launch the game
-
 ## Development notes
 
-Pyre is intentionally narrow in scope and strongly focused on correctness, reviewability, side safety, and compatibility.
+Pyre favors correctness, side safety, and compatibility over aggressive optimization.
 
-If an optimization risks vanilla accuracy or mod compatibility, Pyre favors the safer option.
+If an optimization risks vanilla accuracy or mod compatibility, Pyre falls back to the safer path.
 
 ## License
 
-This project is licensed under the **Mozilla Public License 2.0 (MPL-2.0)**.  
-See the `LICENSE` file for more information.
+This project is licensed under the Mozilla Public License 2.0 (`MPL-2.0`).
 
----
-
-Vanilla-faithful TNT and explosion lag optimization for Fabric 1.21.11.
