@@ -11,6 +11,8 @@ All validation should be performed against Minecraft 1.21.11 with the Yarn `1.21
 - Pyre + BadOptimizations
 - Pyre + Sodium + Lithium + FerriteCore + ImmediatelyFast
 - Pyre in a medium-sized Fabric optimization stack
+- Client-only Pyre on a multiplayer server without Pyre installed server-side
+- Pyre on both client and dedicated server
 
 ## Scenario coverage
 
@@ -20,6 +22,7 @@ All validation should be performed against Minecraft 1.21.11 with the Yarn `1.21
 - TNT plus entities near the blast edge
 - Technical redstone TNT launchers and duper-style timing sanity checks
 - World reload and dimension change after TNT use
+- Multiplayer explosion spam with only the client-side half active
 
 ## Manual validation checklist
 
@@ -31,6 +34,7 @@ All validation should be performed against Minecraft 1.21.11 with the Yarn `1.21
 6. Install known optimization mods with `autoDisableRiskyPathsWithKnownMods=true` and verify risky paths are disabled without errors.
 7. Reload the world, change dimension, and repeat TNT tests. Pyre transient state must reset cleanly.
 8. If `debugLogging` or `profilerMarkers` is enabled, inspect the logs for cache hits, misses, cluster reuse opportunities, explosion counts, and Pyre-vs-vanilla timing.
+9. Join a multiplayer server without Pyre installed on the server, trigger explosion-heavy situations, and verify only local particle/sound smoothing changes while gameplay remains server-authoritative.
 
 ## Focused correctness checks
 
@@ -38,3 +42,4 @@ All validation should be performed against Minecraft 1.21.11 with the Yarn `1.21
 - Compatibility mode: confirm only safe bookkeeping remains active in strict mode
 - Known-mod fallback: confirm risky paths disable automatically when configured
 - Crash safety: confirm Pyre does nothing destructive when a hook cannot prove correctness
+- Client lifecycle cleanup: confirm local effect-cluster and sound state clears on disconnect and world change

@@ -1,6 +1,11 @@
 # Pyre Compatibility
 
-Pyre only optimizes explosion-domain support work for Minecraft 1.21.11 on Fabric. The vanilla explosion engine remains the source of truth for fuse timing, blast power, block destruction, damage, and knockback.
+Pyre is a single Fabric mod jar for Minecraft 1.21.11 with two side-aware halves:
+
+- a server/common simulation optimizer for vanilla-faithful TNT and explosion work
+- a client-only explosion effect smoother for local particles and sounds
+
+The vanilla explosion engine remains the source of truth for fuse timing, blast power, block destruction, damage, and knockback.
 
 ## What Pyre optimizes
 
@@ -8,6 +13,8 @@ Pyre only optimizes explosion-domain support work for Minecraft 1.21.11 on Fabri
 - Conservative same-tick explosion cluster tracking
 - Tight-lifetime support-query caching for nearby entity scans, with vanilla fallback whenever reuse is uncertain
 - Deferred cleanup of Pyre-owned transient state so bookkeeping does not amplify TNT chains
+- Local same-tick explosion sound coalescing on the client
+- Local explosion particle budgeting and clustered effect suppression on the client
 
 ## What Pyre intentionally does not optimize
 
@@ -16,6 +23,7 @@ Pyre only optimizes explosion-domain support work for Minecraft 1.21.11 on Fabri
 - Vanilla blast ray marching, damage, knockback, or block destruction rules
 - TNT fuse logic, redstone timing, or technical gameplay semantics
 - Broad world, entity, or scheduling rewrites outside the explosion domain
+- Remote server TPS when Pyre is installed only on a multiplayer client
 
 ## Strict compatibility mode
 
@@ -23,6 +31,7 @@ Pyre only optimizes explosion-domain support work for Minecraft 1.21.11 on Fabri
 
 - Pyre keeps the manager, scheduler, and cluster bookkeeping active
 - Riskier support-path reuse, especially cross-explosion nearby-entity query reuse, is disabled
+- On the client, effect smoothing falls back to the most conservative same-tick dedupe rules
 - All explosion outcomes stay fully vanilla because Pyre only observes and coordinates
 
 This mode is intended for large modpacks and singleplayer stacks where stability matters more than aggressive optimization.
@@ -35,5 +44,6 @@ When mods such as Sodium, Lithium, Krypton, BadOptimizations, FerriteCore, Immed
 - Pyre does not patch networking, so Krypton is left alone
 - Pyre does not replace vanilla explosion logic, which avoids the broad system overlap that often causes conflicts with Lithium- or BadOptimizations-style mods
 - If `autoDisableRiskyPathsWithKnownMods=true`, Pyre automatically disables the risky nearby-entity query reuse path and keeps only the safest bookkeeping paths
+- On the client, render-optimization stacks push Pyre toward stricter same-tick-only effect dedupe rather than broader suppression
 
 If Pyre cannot prove that a reuse path is safe, it falls back to vanilla behavior immediately.

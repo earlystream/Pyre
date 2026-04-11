@@ -3,7 +3,7 @@
   "id": "pyre",
   "version": "${version}",
   "name": "Pyre",
-  "description": "Vanilla-faithful TNT and explosion lag optimization for Fabric 1.21.11.",
+  "description": "Vanilla-faithful TNT and explosion lag optimization.",
   "authors": [
     {
       "name": "earlystream",
@@ -21,10 +21,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "pyre.Pyre"
+      "pyre.fabric.PyreFabric"
     ],
     "client": [
-      "pyre.client.PyreClient"
+      "pyre.fabric.client.PyreFabricClient"
     ]
   },
   "mixins": [
@@ -33,7 +33,7 @@
   ],
   "depends": {
     "fabricloader": ">=0.18.6",
-    "minecraft": "~1.21.11",
+    "minecraft": "~${minecraft_version}",
     "java": ">=21",
     "fabric-api": "*"
   }

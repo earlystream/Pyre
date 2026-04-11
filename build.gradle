@@ -3,32 +3,66 @@ plugins {
     id 'maven-publish'
 }
 
+def pyreTargetProperties = new Properties()
+file('gradle/pyre-targets.properties').withInputStream { pyreTargetProperties.load(it) }
+def pyreVersionMatrix = new Properties()
+file('gradle/pyre-fabric-versions.properties').withInputStream { pyreVersionMatrix.load(it) }
+
+def selectedPyreTarget = (findProperty('pyre_target') ?: project.minecraft_version).toString()
+def pyreMinecraftVersion = pyreVersionMatrix.getProperty("${selectedPyreTarget}.minecraft")
+if (pyreMinecraftVersion == null) {
+    throw new GradleException("Unknown Pyre target '${selectedPyreTarget}'. Check gradle/pyre-fabric-versions.properties.")
+}
+
+def pyreYarnMappings = pyreVersionMatrix.getProperty("${selectedPyreTarget}.yarn")
+def pyreFabricVersion = pyreVersionMatrix.getProperty("${selectedPyreTarget}.fabric_api")
+def pyreVersionFamily = pyreVersionMatrix.getProperty("${selectedPyreTarget}.family")
+def pyreLoaderVersion = pyreVersionMatrix.getProperty("${selectedPyreTarget}.loader_version", project.loader_version.toString())
+
 version = project.mod_version
 group = project.maven_group
 
 base {
-    archivesName = project.archives_base_name
+    archivesName = "${project.archives_base_name}-${project.loader_target}-${pyreMinecraftVersion}"
 }
 
 repositories {
     maven {
         url = 'https://maven.fabricmc.net/'
     }
+    maven {
+        url = 'https://maven.quiltmc.org/repository/release/'
+    }
     mavenCentral()
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    minecraft "com.mojang:minecraft:${pyreMinecraftVersion}"
+    mappings "net.fabricmc:yarn:${pyreYarnMappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${pyreLoaderVersion}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${pyreFabricVersion}"
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', "src/version/${pyreVersionFamily}/java"]
+        }
+        resources {
+            srcDirs = ['src/main/resources', "src/version/${pyreVersionFamily}/resources"]
+        }
+    }
 }
 
 processResources {
     inputs.property "version", project.version
+    inputs.property "minecraft_version", pyreMinecraftVersion
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand(
+                "version": project.version,
+                "minecraft_version": pyreMinecraftVersion
+        )
     }
 }
 
@@ -39,7 +73,6 @@ tasks.withType(JavaCompile).configureEach {
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
-    withSourcesJar()
 }
 
 publishing {
@@ -47,5 +80,21 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
         }
+    }
+}
+
+tasks.register('printPyreTargetMatrix') {
+    group = 'help'
+    description = 'Prints the audited Pyre loader/version targets and hook families.'
+
+    doLast {
+        println "fabric targets: ${pyreTargetProperties.getProperty('fabric.gameTargets')}"
+        println "quilt targets: ${pyreTargetProperties.getProperty('quilt.gameTargets')}"
+        println "neoforge target prefixes: ${pyreTargetProperties.getProperty('neoforge.targetPrefixes')}"
+        println "version family 1.21-1.21.1: ${pyreTargetProperties.getProperty('family.v1210_1211')}"
+        println "version family 1.21.2-1.21.4: ${pyreTargetProperties.getProperty('family.v1212_1214')}"
+        println "version family 1.21.5-1.21.8: ${pyreTargetProperties.getProperty('family.v1217')}"
+        println "version family 1.21.9-1.21.11: ${pyreTargetProperties.getProperty('family.v12111')}"
+        println "version family 26.1.x: ${pyreTargetProperties.getProperty('family.v261x')}"
     }
 }

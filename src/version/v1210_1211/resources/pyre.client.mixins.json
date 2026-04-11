@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "pyre.client.mixin.v1210_1211",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ClientPlayNetworkHandlerMixin",
+    "ExplosionMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

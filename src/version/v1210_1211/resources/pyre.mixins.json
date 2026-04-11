@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "pyre.mixin.v1210_1211",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ExplosionMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
